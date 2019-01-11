@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Github v3 API</string>
+    <string name="siwgithub">Sign in to GitHub</string>
+    <string name="suwgithub">Don\'t have an account? Create One.</string>
+</resources>

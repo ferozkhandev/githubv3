@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="btnColor">#0080ff</color>
+    <color name="githubactionbar">#24292e</color>
+    <color name="actionbarfont">#c8c9cb</color>
+    <color name="statusbarcolor">#1e2327</color>
+    <color name="bgcolor">#ececec</color>
+</resources>
