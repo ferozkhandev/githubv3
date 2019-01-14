@@ -2,4 +2,7 @@
     <string name="app_name">Github v3 API</string>
     <string name="siwgithub">Sign in to GitHub</string>
     <string name="suwgithub">Don\'t have an account? Create One.</string>
+    <string name="title_activity_home_page">HomePage</string>
+    <string name="title_home">My Repositories</string>
+    <string name="title_dashboard">Browse Repositories</string>
 </resources>

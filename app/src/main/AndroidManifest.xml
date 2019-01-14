@@ -22,7 +22,10 @@
         <activity
             android:name=".Login"
             android:label="GitHub Account Login" />
-        <activity android:name=".ReposList"></activity>
+        <activity android:name=".ReposList" />
+        <activity
+            android:name=".HomePage"
+            android:label="@string/title_activity_home_page"></activity>
     </application>
 
 </manifest>

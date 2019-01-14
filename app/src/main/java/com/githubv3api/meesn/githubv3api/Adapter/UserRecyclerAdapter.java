@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.githubv3api.meesn.githubv3api.R;
+import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.model.User;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.List;
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserRecyclerHolder>  {
 
 
-    private List<User> listUsers = new ArrayList<User>();
+    private List<Repository> listUsers = new ArrayList<Repository>();
     @NonNull
     @Override
     public UserRecyclerHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -28,9 +29,12 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull UserRecyclerHolder userRecyclerHolder, int i) {
-        User user = listUsers.get(i);
-        Log.d("UserList", user.getName());
-        userRecyclerHolder.name.setText(user.getName());
+        Repository user = listUsers.get(i);
+        if (user.getName() != null)
+        {
+            Log.d("UserList", user.getName());
+            userRecyclerHolder.name.setText(user.getName());
+        }
     }
 
     @Override
@@ -38,7 +42,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         return listUsers.size();
     }
 
-    public void setUsers(List<User> listUsers)
+    public void setUsers(List<Repository> listUsers)
     {
         this.listUsers = listUsers;
         notifyDataSetChanged();

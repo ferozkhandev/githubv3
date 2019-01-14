@@ -1,6 +1,7 @@
 package com.githubv3api.meesn.githubv3api;
 
 import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,8 +20,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.githubv3api.meesn.githubv3api.apprepository.AppRepository;
 import com.githubv3api.meesn.githubv3api.model.User;
 import com.githubv3api.meesn.githubv3api.service.UserClient;
+import com.githubv3api.meesn.githubv3api.viewmodel.AppViewModel;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,14 +44,8 @@ public class Login extends AppCompatActivity {
     private boolean loginSuccess = false;
     private String userLoginName;
     private InternetCheck internetCheck;
+    private AppViewModel appViewModel;
 
-    String baseUrl = "https://api.github.com";
-
-    //Retrofit Builder Initialization
-    Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create());
-    Retrofit retrofit = retrofitBuilder.build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +55,7 @@ public class Login extends AppCompatActivity {
         getSupportActionBar().setCustomView(R.layout.githubactionbar);
         parentLayout = findViewById(android.R.id.content);
         internetCheck = new InternetCheck(Login.this);
+        appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
 
         //Declare Views
         email = findViewById(R.id.input_email);
@@ -115,11 +113,13 @@ public class Login extends AppCompatActivity {
         progressDialog.show();
 
         // TODO: Implement your own authentication logic here.
-        new UserLoginTask().execute();
+        appViewModel.loginUser(this.email.getText().toString().trim(), password.getText().toString().trim(), getApplicationContext());
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
+                        loginSuccess = appViewModel.getLoginStatus();
+                        userLoginName = appViewModel.getUserLoginName();
                         // On complete call either onLoginSuccess or onLoginFailed
                         if (loginStatus()) {
                             writesp(userLoginName);
@@ -181,43 +181,4 @@ public class Login extends AppCompatActivity {
         return valid;
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-
-            UserClient userClient = retrofit.create(UserClient.class);
-            String username = email.getText().toString().trim();
-            String password = Login.this.password.getText().toString().trim();
-            String base = username + ":" + password;
-            String authHeader = "Basic " + Base64.encodeToString(base.getBytes(), Base64.NO_WRAP);
-            Call<User> call = userClient.userlogin(authHeader);
-            try {
-                Response<User> response = call.execute();
-                if (response.isSuccessful()) {
-                    Log.d("userlogin", "Login Done");
-                    userLoginName = response.body().getLogin();
-                    return true;
-                } else {
-                    Log.d("userlogin", response.message());
-                }
-
-            } catch (IOException ex) {
-                Log.d("userlogin", ex.getMessage());
-                ex.printStackTrace();
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                loginSuccess = true;
-                Toast.makeText(Login.this, "Login Success", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(Login.this, "Incorrect Username or Password", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 }
