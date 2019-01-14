@@ -27,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 if (readsp())
                 {
-                    Intent i = new Intent(SplashActivity.this, ReposList.class);
+                    Intent i = new Intent(SplashActivity.this, HomePage.class);
                     i.putExtra("userLoginName", userLoginName);
                     startActivity(i);
                 }

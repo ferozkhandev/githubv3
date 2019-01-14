@@ -124,7 +124,7 @@ public class Login extends AppCompatActivity {
                         if (loginStatus()) {
                             writesp(userLoginName);
                             onLoginSuccess();
-                            Intent intent = new Intent(Login.this, ReposList.class);
+                            Intent intent = new Intent(Login.this, HomePage.class);
                             intent.putExtra("userLoginName", userLoginName);
                             startActivity(intent);
 

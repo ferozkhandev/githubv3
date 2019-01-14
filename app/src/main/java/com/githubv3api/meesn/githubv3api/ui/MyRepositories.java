@@ -1,45 +1,38 @@
-package com.githubv3api.meesn.githubv3api;
+package com.githubv3api.meesn.githubv3api.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.githubv3api.meesn.githubv3api.Adapter.UserRecyclerAdapter;
+import com.githubv3api.meesn.githubv3api.HomePage;
+import com.githubv3api.meesn.githubv3api.R;
 import com.githubv3api.meesn.githubv3api.database.Repository;
-import com.githubv3api.meesn.githubv3api.model.User;
-import com.githubv3api.meesn.githubv3api.service.UserClient;
 import com.githubv3api.meesn.githubv3api.viewmodel.AppViewModel;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import static android.content.ContentValues.TAG;
 
-public class ReposList extends AppCompatActivity {
-
+public class MyRepositories extends Fragment {
     private RecyclerView recyclerView;
     private String baseUrl = "https://api.github.com";
     private boolean isScrolling = false;
@@ -51,20 +44,33 @@ public class ReposList extends AppCompatActivity {
     private Executor executor = Executors.newSingleThreadExecutor();
     final UserRecyclerAdapter userRecyclerAdapter = new UserRecyclerAdapter();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_repos_list);
-        getSupportActionBar().setTitle("Repositories");
+    private OnFragmentInteractionListener mListener;
 
-        linearLayoutManager = new LinearLayoutManager(this);
-        progressBar = findViewById(R.id.loadmore);
-        imageView = findViewById(R.id.bin);
+    public MyRepositories() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_my_repositories, container, false);
+
+        // Inflate the layout for this fragment
+        linearLayoutManager = new LinearLayoutManager(getContext());
+        progressBar = rootView.findViewById(R.id.loadmore1);
+        imageView = rootView.findViewById(R.id.bin1);
 
         //Recycler View
-        recyclerView = findViewById(R.id.recyclerview);
+        recyclerView = rootView.findViewById(R.id.recyclerview1);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setHasFixedSize(true);
+        //recyclerView.setHasFixedSize(true);
 
         recyclerView.setAdapter(userRecyclerAdapter);
 
@@ -95,12 +101,14 @@ public class ReposList extends AppCompatActivity {
         });
 
         appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
-        loadData();
+        loadData(rootView);
+        return rootView;
     }
 
-    private void loadData()
+    private void loadData(final View rootView)
     {
-        appViewModel.loadRepositories(getIntent().getStringExtra("userLoginName"));
+        appViewModel.loadRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
+        Log.d("DataLoaded", getActivity().getIntent().getExtras().getString("userLoginName"));
         if (appViewModel.getRepositories() != null)
         {
             appViewModel.getRepositories().observe(this, new Observer<List<Repository>>() {
@@ -108,6 +116,8 @@ public class ReposList extends AppCompatActivity {
                 public void onChanged(@Nullable List<Repository> repositories) {
                     if (repositories != null && !repositories.isEmpty())
                     {
+                        Log.d("DataloadedCheck", "Loaded but not displayed");
+                        Log.d(TAG, "onChanged:data "+repositories.get(0).getName());
                         recyclerView.setVisibility(View.VISIBLE);
                         imageView.setVisibility(View.GONE);
                         userRecyclerAdapter.setUsers(repositories);
@@ -116,15 +126,16 @@ public class ReposList extends AppCompatActivity {
                     {
                         recyclerView.setVisibility(View.GONE);
                         imageView.setVisibility(View.VISIBLE);
-                        Snackbar snackbar = Snackbar
-                                .make(findViewById(android.R.id.content), "No Data at this moment!", Snackbar.LENGTH_LONG)
+                        /*Snackbar snackbar = Snackbar
+                                .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
                                 .setAction("Retry", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        loadData();
+                                        loadData(v);
                                     }
                                 });
-                        snackbar.show();
+                        snackbar.show();*/
+                        Log.d("DataloadedCheck", "null");
                     }
                 }
             });
@@ -133,15 +144,16 @@ public class ReposList extends AppCompatActivity {
         {
             recyclerView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
-            Snackbar snackbar = Snackbar
-                    .make(findViewById(android.R.id.content), "No Data at this moment!", Snackbar.LENGTH_LONG)
+            /*Snackbar snackbar = Snackbar
+                    .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
                     .setAction("Retry", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            loadData();
+                            loadData(v);
                         }
                     });
-            snackbar.show();
+            snackbar.show();*/
+            Log.d("DataloadedCheck", "failed");
         }
     }
 
@@ -155,26 +167,32 @@ public class ReposList extends AppCompatActivity {
         },2000);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.actionbarmenu, menu);
-        return true;
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if(itemId == R.id.logout)
-        {
-            SharedPreferences sharedPref = this.getSharedPreferences("MY_PREFS",Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.apply();
-            Intent intent = new Intent(ReposList.this, Login.class);
-            startActivity(intent);
-            ReposList.this.finish();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
 
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 }
