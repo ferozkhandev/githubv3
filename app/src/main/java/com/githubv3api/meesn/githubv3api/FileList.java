@@ -45,6 +45,7 @@ public class FileList extends AppCompatActivity {
     private String username;
     private String repoName;
     private TextView noDataTitle, noDataDescription;
+    private InternetCheck internetCheck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class FileList extends AppCompatActivity {
 
         noDataTitle = findViewById(R.id.noDataTitle);
         noDataDescription = findViewById(R.id.noDataDescription);
+        internetCheck = new InternetCheck(getApplicationContext());
 
         username = getIntent().getStringExtra("userLoginName");
         repoName = getIntent().getStringExtra("repoName");
@@ -122,6 +124,7 @@ public class FileList extends AppCompatActivity {
                         imageView.setVisibility(View.VISIBLE);
                         noDataTitle.setVisibility(View.VISIBLE);
                         noDataDescription.setVisibility(View.VISIBLE);
+                        isNetIssue();
                     }
                 }
             });
@@ -132,6 +135,35 @@ public class FileList extends AppCompatActivity {
             imageView.setVisibility(View.VISIBLE);
             noDataTitle.setVisibility(View.VISIBLE);
             noDataDescription.setVisibility(View.VISIBLE);
+
+                isNetIssue();
+        }
+    }
+
+    private void isNetIssue()
+    {
+        if (!internetCheck.netCheck())
+        {
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(android.R.id.content), "No internet connection!", Snackbar.LENGTH_LONG)
+                    .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            isNetIssue();
+                        }
+                    });
+            snackbar.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                        isNetIssue();
+
+                }}, 5000);
+        }
+        else
+        {
+            loadData();
         }
     }
 

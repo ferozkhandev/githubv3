@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import com.githubv3api.meesn.githubv3api.apprepository.AppRepository;
 import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.model.File;
+import com.githubv3api.meesn.githubv3api.model.OtherUsers;
 import com.githubv3api.meesn.githubv3api.model.User;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class AppViewModel extends AndroidViewModel {
     private LiveData<List<File>> files;
     private boolean loginSuccess;
     private String userLoginName;
-    private List<User> userList;
+    private LiveData<List<OtherUsers>> userList;
 
     public AppViewModel(@NonNull Application application) {
         super(application);
@@ -76,11 +77,11 @@ public class AppViewModel extends AndroidViewModel {
         return files;
     }
 
-    public List<User> loadUsers(Context context) {
-        return appRepository.loadUsers(context);
+    public void loadUsers(Context context) {
+        appRepository.loadUsers(context);
     }
 
-    public List<User> getLoadedUsers() {
+    public LiveData<List<OtherUsers>> getLoadedUsers() {
         userList =  appRepository.getLoadedUsers();
         return userList;
     }

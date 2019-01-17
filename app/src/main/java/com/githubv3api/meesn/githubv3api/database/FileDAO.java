@@ -33,9 +33,9 @@ public interface FileDAO {
     @Update
     void updateFile(List<File> file);
 
-    @Query("SELECT * FROM files")
+    @Query("SELECT * FROM files ORDER BY type ASC, name ASC;")
     LiveData<List<File>> getFiles();
 
-    @Query("SELECT * FROM files WHERE repoName=:repoName")
+    @Query("SELECT * FROM files WHERE repoName=:repoName ORDER BY type ASC, name ASC;")
     LiveData<List<File>> getFiles(String repoName);
 }

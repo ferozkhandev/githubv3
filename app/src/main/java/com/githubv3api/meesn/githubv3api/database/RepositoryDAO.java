@@ -25,9 +25,9 @@ public interface RepositoryDAO {
     @Update
     void updateRepository(Repository repository);
 
-    @Query("SELECT id, username, repoType, name FROM repositories;")
+    @Query("SELECT id, username, repoType, name FROM repositories ORDER BY name ASC;")
     LiveData<List<Repository>> getRepositories();
 
-    @Query("SELECT id, username, repoType, name FROM repositories WHERE repoType=:repoType;")
+    @Query("SELECT id, username, repoType, name FROM repositories WHERE repoType=:repoType ORDER BY name ASC;")
     LiveData<List<Repository>> getRepositories(String repoType);
 }

@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 
 import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.model.File;
+import com.githubv3api.meesn.githubv3api.model.OtherUsers;
 import com.githubv3api.meesn.githubv3api.model.User;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface UserClient {
     @GET("user")
     Call<User> userlogin(@Header("Authorization") String encodedid);
     @GET("/users")
-    Call<List<User>> loadUsers(@Header("Authorization") String encodedid);
+    Call<List<OtherUsers>> loadUsers(@Header("Authorization") String encodedid);
     @GET("/users/{user}/repos")
     Call<List<Repository>> reposForUser(@Header("Authorization") String encodedid, @Path("user") String user);
     @GET("/repos/{user}/{repo}/contents")

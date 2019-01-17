@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,14 +21,17 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.githubv3api.meesn.githubv3api.Adapter.OtherRecyclerAdapter;
 import com.githubv3api.meesn.githubv3api.Adapter.UserRecyclerAdapter;
 import com.githubv3api.meesn.githubv3api.HomePage;
+import com.githubv3api.meesn.githubv3api.InternetCheck;
 import com.githubv3api.meesn.githubv3api.Login;
 import com.githubv3api.meesn.githubv3api.R;
 import com.githubv3api.meesn.githubv3api.SplashActivity;
 import com.githubv3api.meesn.githubv3api.database.Repository;
+import com.githubv3api.meesn.githubv3api.model.OtherUsers;
 import com.githubv3api.meesn.githubv3api.model.User;
 import com.githubv3api.meesn.githubv3api.viewmodel.AppViewModel;
 
@@ -49,8 +53,11 @@ public class BrowseRepositories extends Fragment {
     private AppViewModel appViewModel;
     private Executor executor = Executors.newSingleThreadExecutor();
     final OtherRecyclerAdapter otherRecyclerAdapter = new OtherRecyclerAdapter();
-    private List<User> loadedUsers;
-    String username;
+    private List<OtherUsers> loadedUsers;
+    private String username;
+    private InternetCheck internetCheck;
+    private TextView noDataTitle, noDataDescription;
+    private boolean isLoaded=false;
 
     private OnFragmentInteractionListener mListener;
 
@@ -74,6 +81,10 @@ public class BrowseRepositories extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getContext());
         progressBar = rootView.findViewById(R.id.loadmore1);
         imageView = rootView.findViewById(R.id.bin1);
+        internetCheck = new InternetCheck(rootView.getContext());
+
+        noDataTitle = rootView.findViewById(R.id.noDataTitle);
+        noDataDescription = rootView.findViewById(R.id.noDataDescription);
 
         //Recycler View
         recyclerView = rootView.findViewById(R.id.recyclerview1);
@@ -107,51 +118,44 @@ public class BrowseRepositories extends Fragment {
         });
 
         appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
-        loadedUsers = appViewModel.loadUsers(getContext());
-
-        /*new Handler().postDelayed(new Runnable() {
+        appViewModel.loadUsers(getContext());
+        appViewModel.getLoadedUsers().observe(this, new Observer<List<OtherUsers>>() {
             @Override
-            public void run() {
-                try
+            public void onChanged(@Nullable List<OtherUsers> otherUsers) {
+                loadedUsers = otherUsers;
+                if (loadedUsers!=null)
                 {
-                    loadedUsers = appViewModel.getLoadedUsers();
-                    if (loadedUsers!=null)
-                    {
-                        Log.d("Check this one", "Load users are no more null");
-                    }
-                    else
-                    {
-                        Log.d("Check this one", "Yakhhhh I'm still null");
-                    }
+                    isLoaded = true;
                 }
-                catch (NullPointerException ex)
-                {
-                    Log.d("Check this one", ex.getCause().toString());
-                }
-            }}, 4000);*/
-            //Log.d("CheckLoadedUserNull", "Everything's ok now.");
-
-                    /*if (users != null) {
-                        Log.d("LoadedUsersHere", users.get(0).getLogin());
-                        setUsername(users.get(0).getLogin());
-                        recyclerView.setVisibility(View.GONE);
-                        imageView.setVisibility(View.VISIBLE);
-                        loadData(rootView);
-                    }
-                }
-            });*/
-
+            }
+        });
         loadData(rootView);
+        //checkLoaded(rootView);
         return rootView;
+    }
+    private synchronized void checkLoaded(final View rootView)
+    {
+        if (isLoaded)
+        {
+            loadData(rootView);
+        }
+        else
+        {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadData(rootView);
+                }}, 4000);
+        }
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    private void loadData(final View rootView) {
+    private synchronized void loadData(final View rootView) {
         if (loadedUsers != null) {
-            username = loadedUsers.get(0).getLogin();
+            username = loadedUsers.get(2).getLogin();
         } else {
             username = "mojombo";
         }
@@ -170,32 +174,43 @@ public class BrowseRepositories extends Fragment {
                     } else {
                         recyclerView.setVisibility(View.GONE);
                         imageView.setVisibility(View.VISIBLE);
-                        /*Snackbar snackbar = Snackbar
-                                .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
-                                .setAction("Retry", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        loadData(v);
-                                    }
-                                });
-                        snackbar.show();*/
                         Log.d("DataloadedCheck", "null");
+                        isNetIssue(rootView);
                     }
                 }
             });
         } else {
             recyclerView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
-            /*Snackbar snackbar = Snackbar
-                    .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
+            Log.d("DataloadedCheck", "failed");
+            isNetIssue(rootView);
+        }
+    }
+
+    private void isNetIssue(final View rootView)
+    {
+        if (!internetCheck.netCheck())
+        {
+            Snackbar snackbar = Snackbar
+                    .make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
                     .setAction("Retry", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            loadData(v);
+                            isNetIssue(v);
                         }
                     });
-            snackbar.show();*/
-            Log.d("DataloadedCheck", "failed");
+            snackbar.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    isNetIssue(rootView);
+
+                }}, 5000);
+        }
+        else
+        {
+            loadData(rootView);
         }
     }
 

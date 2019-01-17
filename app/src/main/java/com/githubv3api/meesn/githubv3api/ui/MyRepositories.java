@@ -20,9 +20,11 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.githubv3api.meesn.githubv3api.Adapter.UserRecyclerAdapter;
 import com.githubv3api.meesn.githubv3api.HomePage;
+import com.githubv3api.meesn.githubv3api.InternetCheck;
 import com.githubv3api.meesn.githubv3api.R;
 import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.viewmodel.AppViewModel;
@@ -44,11 +46,14 @@ public class MyRepositories extends Fragment {
     private AppViewModel appViewModel;
     private Executor executor = Executors.newSingleThreadExecutor();
     final UserRecyclerAdapter userRecyclerAdapter = new UserRecyclerAdapter();
+    private InternetCheck internetCheck;
+    private TextView noDataTitle, noDataDescription;
 
     private OnFragmentInteractionListener mListener;
 
     public MyRepositories() {
         // Required empty public constructor
+
     }
 
     @Override
@@ -67,6 +72,10 @@ public class MyRepositories extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getContext());
         progressBar = rootView.findViewById(R.id.loadmore1);
         imageView = rootView.findViewById(R.id.bin1);
+        internetCheck = new InternetCheck(rootView.getContext());
+
+        noDataTitle = rootView.findViewById(R.id.noDataTitle);
+        noDataDescription = rootView.findViewById(R.id.noDataDescription);
 
         //Recycler View
         recyclerView = rootView.findViewById(R.id.recyclerview1);
@@ -124,22 +133,18 @@ public class MyRepositories extends Fragment {
                         Log.d(TAG, "onChanged:data "+repositories.get(0).getName());
                         recyclerView.setVisibility(View.VISIBLE);
                         imageView.setVisibility(View.GONE);
+                        noDataTitle.setVisibility(View.GONE);
+                        noDataDescription.setVisibility(View.GONE);
                         userRecyclerAdapter.setUsers(repositories);
                     }
                     else
                     {
                         recyclerView.setVisibility(View.GONE);
                         imageView.setVisibility(View.VISIBLE);
-                        /*Snackbar snackbar = Snackbar
-                                .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
-                                .setAction("Retry", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        loadData(v);
-                                    }
-                                });
-                        snackbar.show();*/
+                        noDataTitle.setVisibility(View.VISIBLE);
+                        noDataDescription.setVisibility(View.VISIBLE);
                         Log.d("DataloadedCheck", "null");
+                        isNetIssue(rootView);
                     }
                 }
             });
@@ -148,16 +153,36 @@ public class MyRepositories extends Fragment {
         {
             recyclerView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
-            /*Snackbar snackbar = Snackbar
-                    .make(rootView, "No Data at this moment!", Snackbar.LENGTH_LONG)
+            noDataTitle.setVisibility(View.VISIBLE);
+            noDataDescription.setVisibility(View.VISIBLE);
+            Log.d("DataloadedCheck", "failed");
+            isNetIssue(rootView);
+        }
+    }
+    private void isNetIssue(final View rootView)
+    {
+        if (!internetCheck.netCheck())
+        {
+            Snackbar snackbar = Snackbar
+                    .make(rootView, "No internet connection!", Snackbar.LENGTH_LONG)
                     .setAction("Retry", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            loadData(v);
+                            isNetIssue(v);
                         }
                     });
-            snackbar.show();*/
-            Log.d("DataloadedCheck", "failed");
+            snackbar.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    isNetIssue(rootView);
+
+                }}, 5000);
+        }
+        else
+        {
+            loadData(rootView);
         }
     }
 

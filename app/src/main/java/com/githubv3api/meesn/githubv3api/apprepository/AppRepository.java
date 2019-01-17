@@ -3,17 +3,23 @@ package com.githubv3api.meesn.githubv3api.apprepository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.githubv3api.meesn.githubv3api.FileList;
+import com.githubv3api.meesn.githubv3api.HomePage;
+import com.githubv3api.meesn.githubv3api.Login;
+import com.githubv3api.meesn.githubv3api.SplashActivity;
 import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.database.RepositoryDB;
 import com.githubv3api.meesn.githubv3api.model.File;
+import com.githubv3api.meesn.githubv3api.model.OtherUsers;
 import com.githubv3api.meesn.githubv3api.model.User;
 import com.githubv3api.meesn.githubv3api.service.UserClient;
 
@@ -36,8 +42,8 @@ public class AppRepository {
     private String username, password;
     private String baseUrl = "https://api.github.com";
     private LiveData<List<File>> files;
-    private List<User> loadedUsers;
-    private boolean checkFuncCall=false;
+    private LiveData<List<OtherUsers>> loadedUsers;
+    private boolean checkFuncCall = false;
 
     //Retrofit Builder Initialization
     private Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -93,12 +99,9 @@ public class AppRepository {
                 if (repos != null && !repos.isEmpty()) {
                     for (Repository rep : repos) {
                         rep.setUsername(userLoginName);
-                        if(username.equals(userLoginName))
-                        {
+                        if (username.equals(userLoginName)) {
                             rep.setRepoType("userrepo");
-                        }
-                        else
-                        {
+                        } else {
                             rep.setRepoType("other");
                         }
                     }
@@ -118,6 +121,7 @@ public class AppRepository {
             }
         });
     }
+
     public synchronized LiveData<List<Repository>> getRepositories() {
         repositories = repositoryDB.repositoryDAO().getRepositories();
         return repositories;
@@ -142,7 +146,7 @@ public class AppRepository {
             public void onResponse(Call<List<File>> call, Response<List<File>> response) {
                 final List<File> repos = response.body();
                 if (repos != null && !repos.isEmpty()) {
-                    for (File rep:repos) {
+                    for (File rep : repos) {
                         rep.setRepoName(repoName);
                     }
                     executor.execute(new Runnable() {
@@ -163,22 +167,11 @@ public class AppRepository {
     }
 
     public synchronized LiveData<List<File>> getFiles() {
-        /*executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                files = repositoryDB.fileDAO().getFiles();
-            }
-        });*/
         files = repositoryDB.fileDAO().getFiles();
         return files;
     }
+
     public synchronized LiveData<List<File>> getFiles(String repoName) {
-        /*executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                files = repositoryDB.fileDAO().getFiles();
-            }
-        });*/
         files = repositoryDB.fileDAO().getFiles(repoName);
         return files;
     }
@@ -186,62 +179,43 @@ public class AppRepository {
 
     /*-------------------------------------Files Info--------------------------------------------------*/
 
-    /*-------------------------------------Load Users Info--------------------------------------------------*/
-    public List<User> loadUsers(Context context) {
+    /*-------------------------------------Load OtherUsers Info--------------------------------------------------*/
+    public void loadUsers(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
         String authHeader = sharedPref.getString("Authorization", null);
         UserClient client = retrofit.create(UserClient.class);
-        Call<List<User>> call = client.loadUsers(authHeader);
-        call.enqueue(new Callback<List<User>>() {
+        Call<List<OtherUsers>> call = client.loadUsers(authHeader);
+        call.enqueue(new Callback<List<OtherUsers>>() {
             @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                final List<User> users = response.body();
+            public void onResponse(Call<List<OtherUsers>> call, Response<List<OtherUsers>> response) {
+                final List<OtherUsers> users = response.body();
                 if (users != null && !users.isEmpty()) {
-                    //Log.d("checkloadedusernull", users.get(0).getLogin());
                     executor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            setLoadedUsers(users);
+                            repositoryDB.otherUsersDAO().insertOtherUsersDAO(users);
                         }
                     });
+                    Log.d("checkLoadedusersnull", users.get(1).getLogin());
+                } else {
+                    Log.d("checkLoadedusersnull", "OtherUsers are null");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                Log.d("checkloadedusernull", "error :( , "+t.getCause());
+            public void onFailure(Call<List<OtherUsers>> call, Throwable t) {
+                Log.d("checkloadedusernull", "error :( , " + t.getCause());
                 //Toast.makeText(FileList.this, "error :(", Toast.LENGTH_SHORT).show();
             }
         });
-        if (loadedUsers!=null)
-        {
-            return loadedUsers;
-        }
-        else
-        {
-            return null;
-        }
     }
 
-    public synchronized void setLoadedUsers(List<User> loadedUsers) {
-        this.loadedUsers = loadedUsers;
-        /*if (loadedUsers!=null)
-        {
-            Log.d("checkloadedusernull", loadedUsers.get(0).getLogin());
-            return true;
-        }
-        else
-        {
-            Log.d("checkloadedusernull", "nulllllll");
-        }
-        return false;*/
-    }
-
-    public synchronized List<User> getLoadedUsers() {
+    public synchronized LiveData<List<OtherUsers>> getLoadedUsers() {
+        loadedUsers = repositoryDB.otherUsersDAO().getOtherUsers();
         return loadedUsers;
     }
 
-    /*-------------------------------------Load Users Info--------------------------------------------------*/
+    /*-------------------------------------Load OtherUsers Info--------------------------------------------------*/
 
     /*-------------------------------------User Info--------------------------------------------------*/
     public void loginUser(String username, String password, Context context) {
