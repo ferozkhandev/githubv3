@@ -11,21 +11,25 @@ public class Repository {
     @PrimaryKey
     private int id;
 
+    private String username;
     private String repoType;
     private String name;
+
 
     @Ignore
     public Repository() {
     }
 
     @Ignore
-    public Repository(String repoType, String name) {
+    public Repository(String username, String repoType, String name) {
+        this.username = username;
         this.repoType = repoType;
         this.name = name;
     }
 
-    public Repository(int id, String repoType, String name) {
+    public Repository(int id, String username, String repoType, String name) {
         this.id = id;
+        this.username = username;
         this.repoType = repoType;
         this.name = name;
     }
@@ -34,6 +38,13 @@ public class Repository {
         return id;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getRepoType() {
         return repoType;

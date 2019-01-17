@@ -140,8 +140,13 @@ public class Login extends AppCompatActivity {
 
         SharedPreferences sharedPref = this.getSharedPreferences("MY_PREFS",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
+        String username = this.email.getText().toString().trim();
+        String password = this.password.getText().toString().trim();
+        String base = username + ":" + password;
+        String authHeader = "Basic " + Base64.encodeToString(base.getBytes(), Base64.NO_WRAP);
         editor.putBoolean("alreadylogin", true);
         editor.putString("userloginname", userLoginName);
+        editor.putString("Authorization", authHeader);
         editor.apply();
     }
 

@@ -6,28 +6,33 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
+
+import com.githubv3api.meesn.githubv3api.model.File;
 
 import java.util.List;
 
 @Dao
-public interface RepositoryDAO {
+public interface FileDAO {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertFile(File file);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void addRepository(Repository repository);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void addRepository(List<Repository> repository);
+    void insertFile(List<File> file);
 
     @Delete
-    void deleteRepository(Repository repository);
+    void deleteFile(File file);
+
+    @Delete
+    void deleteFile(List<File> file);
 
     @Update
-    void updateRepository(Repository repository);
+    void updateFile(File file);
 
-    @Query("SELECT id, username, repoType, name FROM repositories;")
-    LiveData<List<Repository>> getRepositories();
+    @Update
+    void updateFile(List<File> file);
 
-    @Query("SELECT id, username, repoType, name FROM repositories WHERE repoType=:repoType;")
-    LiveData<List<Repository>> getRepositories(String repoType);
+    @Query("SELECT * FROM files")
+    LiveData<List<File>> getFiles();
 }

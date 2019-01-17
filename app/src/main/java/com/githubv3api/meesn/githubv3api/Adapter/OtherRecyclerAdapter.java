@@ -10,16 +10,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.githubv3api.meesn.githubv3api.FileList;
-import com.githubv3api.meesn.githubv3api.HomePage;
 import com.githubv3api.meesn.githubv3api.R;
 import com.githubv3api.meesn.githubv3api.database.Repository;
-import com.githubv3api.meesn.githubv3api.model.User;
-import com.githubv3api.meesn.githubv3api.ui.MyRepositories;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserRecyclerHolder>  {
+public class OtherRecyclerAdapter extends RecyclerView.Adapter<OtherRecyclerAdapter.UserRecyclerHolder>  {
 
 
     private List<Repository> listUsers = new ArrayList<Repository>();

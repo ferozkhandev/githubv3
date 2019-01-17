@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.facebook.stetho.Stetho;
+
 public class SplashActivity extends AppCompatActivity {
 
     private int splashInterval = 2000;
@@ -21,6 +23,8 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
+
+        Stetho.initializeWithDefaults(this);
 
         new Handler().postDelayed(new Runnable() {
             @Override

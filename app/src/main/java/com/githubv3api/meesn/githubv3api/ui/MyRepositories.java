@@ -3,6 +3,7 @@ package com.githubv3api.meesn.githubv3api.ui;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -107,11 +108,14 @@ public class MyRepositories extends Fragment {
 
     private void loadData(final View rootView)
     {
-        appViewModel.loadRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
+        Context context = getContext();
+        SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        String username = sharedPref.getString("userloginname", null);
+        appViewModel.loadRepositories(username, context);
         Log.d("DataLoaded", getActivity().getIntent().getExtras().getString("userLoginName"));
         if (appViewModel.getRepositories() != null)
         {
-            appViewModel.getRepositories().observe(this, new Observer<List<Repository>>() {
+            appViewModel.getRepositories("userrepo").observe(this, new Observer<List<Repository>>() {
                 @Override
                 public void onChanged(@Nullable List<Repository> repositories) {
                     if (repositories != null && !repositories.isEmpty())

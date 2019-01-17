@@ -51,6 +51,9 @@ public class HomePage extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        FragmentManager manager = getSupportFragmentManager();
+        MyRepositories myRepositories = new MyRepositories();
+        manager.beginTransaction().replace(R.id.fragment_frames,myRepositories,myRepositories.getTag()).commit();
     }
 
     @Override
