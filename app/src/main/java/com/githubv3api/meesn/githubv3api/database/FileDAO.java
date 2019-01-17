@@ -35,4 +35,7 @@ public interface FileDAO {
 
     @Query("SELECT * FROM files")
     LiveData<List<File>> getFiles();
+
+    @Query("SELECT * FROM files WHERE repoName=:repoName")
+    LiveData<List<File>> getFiles(String repoName);
 }

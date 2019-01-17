@@ -71,6 +71,10 @@ public class AppViewModel extends AndroidViewModel {
         files = appRepository.getFiles();
         return files;
     }
+    public LiveData<List<File>> getFiles(String repoName) {
+        files = appRepository.getFiles(repoName);
+        return files;
+    }
 
     public List<User> loadUsers(Context context) {
         return appRepository.loadUsers(context);

@@ -130,7 +130,7 @@ public class AppRepository {
     /*-------------------------------------Repositories Info--------------------------------------------------*/
 
     /*-------------------------------------Files Info--------------------------------------------------*/
-    public synchronized void loadFiles(String userLoginName, String repoName, Context context) {
+    public synchronized void loadFiles(String userLoginName, final String repoName, Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
         String authHeader = sharedPref.getString("Authorization", null);
         UserClient client = retrofit.create(UserClient.class);
@@ -142,6 +142,9 @@ public class AppRepository {
             public void onResponse(Call<List<File>> call, Response<List<File>> response) {
                 final List<File> repos = response.body();
                 if (repos != null && !repos.isEmpty()) {
+                    for (File rep:repos) {
+                        rep.setRepoName(repoName);
+                    }
                     executor.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -169,6 +172,17 @@ public class AppRepository {
         files = repositoryDB.fileDAO().getFiles();
         return files;
     }
+    public synchronized LiveData<List<File>> getFiles(String repoName) {
+        /*executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                files = repositoryDB.fileDAO().getFiles();
+            }
+        });*/
+        files = repositoryDB.fileDAO().getFiles(repoName);
+        return files;
+    }
+
 
     /*-------------------------------------Files Info--------------------------------------------------*/
 
