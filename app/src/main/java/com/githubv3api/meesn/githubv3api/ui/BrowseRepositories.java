@@ -58,6 +58,7 @@ public class BrowseRepositories extends Fragment {
     private InternetCheck internetCheck;
     private TextView noDataTitle, noDataDescription;
     private boolean isLoaded=false;
+    private int i = 0;
 
     private OnFragmentInteractionListener mListener;
 
@@ -111,6 +112,14 @@ public class BrowseRepositories extends Fragment {
                 if (isScrolling && (currentItems + scrolledOutItems == totalItems)) {
                     //Data Fetch
                     isScrolling = false;
+                    if (loadedUsers!=null && !loadedUsers.isEmpty())
+                    {
+                        if (i<loadedUsers.size()-1)
+                        {
+                            i++;
+                            loadData(rootView);
+                        }
+                    }
                     fetchData();
                     Log.d("Fetch", "Fetching");
                 }
@@ -133,6 +142,8 @@ public class BrowseRepositories extends Fragment {
         //checkLoaded(rootView);
         return rootView;
     }
+
+
     private synchronized void checkLoaded(final View rootView)
     {
         if (isLoaded)
@@ -154,8 +165,9 @@ public class BrowseRepositories extends Fragment {
     }
 
     private synchronized void loadData(final View rootView) {
-        if (loadedUsers != null) {
-            username = loadedUsers.get(2).getLogin();
+        if (loadedUsers != null && !loadedUsers.isEmpty()) {
+            username = loadedUsers.get(i).getLogin();
+
         } else {
             username = "mojombo";
         }

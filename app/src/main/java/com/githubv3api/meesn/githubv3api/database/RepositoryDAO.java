@@ -22,6 +22,12 @@ public interface RepositoryDAO {
     @Delete
     void deleteRepository(Repository repository);
 
+    @Delete
+    void deleteRepository(List<Repository> repository);
+
+    @Query("DELETE FROM repositories WHERE username=:username;")
+    void deleteRepository(String username);
+
     @Update
     void updateRepository(Repository repository);
 

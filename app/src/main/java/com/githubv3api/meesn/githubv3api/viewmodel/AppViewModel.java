@@ -46,6 +46,21 @@ public class AppViewModel extends AndroidViewModel {
         return repositories;
     }
 
+    public void deleteRepositories(Repository repository)
+    {
+        appRepository.deleteRepositories(repository);
+    }
+
+    public void deleteRepositories(List<Repository> repository)
+    {
+        appRepository.deleteRepositories(repository);
+    }
+
+    public void deleteRepositories(String repository)
+    {
+        appRepository.deleteRepositories(repository);
+    }
+
     public void loginUser(String username, String password, Context context) {
         appRepository.loginUser(username, password, context);
     }

@@ -131,6 +131,34 @@ public class AppRepository {
         repositories = repositoryDB.repositoryDAO().getRepositories(repoType);
         return repositories;
     }
+
+    public synchronized void deleteRepositories(final Repository repository) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                repositoryDB.repositoryDAO().deleteRepository(repository);
+            }
+        });
+    }
+
+    public synchronized void deleteRepositories(final List<Repository> repository) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                repositoryDB.repositoryDAO().deleteRepository(repository);
+            }
+        });
+    }
+
+    public synchronized void deleteRepositories(final String repository) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                repositoryDB.repositoryDAO().deleteRepository(repository);
+            }
+        });
+    }
+
     /*-------------------------------------Repositories Info--------------------------------------------------*/
 
     /*-------------------------------------Files Info--------------------------------------------------*/

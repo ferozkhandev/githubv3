@@ -40,6 +40,7 @@ public class FilesRecyclerAdapter extends RecyclerView.Adapter<FilesRecyclerAdap
         if (file.getType() != null && file.getType().equals("file")) {
             filesRecyclerHolder.icon.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
         } else if (file.getType() != null && file.getType().equals("dir")) {
+            filesRecyclerHolder.size.setText("");
             filesRecyclerHolder.icon.setImageResource(R.drawable.ic_folder_black_24dp);
         } else if (file.getType() != null) {
             filesRecyclerHolder.icon.setImageResource(R.drawable.logo);
