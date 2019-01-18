@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.NetworkOnMainThreadException;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -16,18 +17,30 @@ public class InternetCheck {
     }
     public boolean netCheck()
     {
+        System.out.println("executeCommand");
+        Runtime runtime = Runtime.getRuntime();
         try
         {
-            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            InetAddress ipAddr = InetAddress.getByName("google.com");
-            //You can replace it with your name
-            return !ipAddr.equals("");
-            //return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+            Process  mIpAddrProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int mExitValue = mIpAddrProcess.waitFor();
+            System.out.println(" mExitValue "+mExitValue);
+            if(mExitValue==0){
+                mIpAddrProcess.destroy();
+                return true;
+            }else{
+                mIpAddrProcess.destroy();
+                return false;
+            }
         }
-        catch (UnknownHostException | NetworkOnMainThreadException | NullPointerException ex)
+        catch (InterruptedException | IOException | NetworkOnMainThreadException | NullPointerException ex)
         {
             return false;
         }
+    }
+    private boolean networkCheck()
+    {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

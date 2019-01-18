@@ -1,5 +1,6 @@
 package com.githubv3api.meesn.githubv3api;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -46,12 +47,20 @@ public class FileList extends AppCompatActivity {
     private String repoName;
     private TextView noDataTitle, noDataDescription;
     private InternetCheck internetCheck;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
         getSupportActionBar().setTitle("Contents");
+
+        progressDialog = new ProgressDialog(FileList.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Data...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         noDataTitle = findViewById(R.id.noDataTitle);
         noDataDescription = findViewById(R.id.noDataDescription);
@@ -75,8 +84,7 @@ public class FileList extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
-                {
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     isScrolling = true;
                 }
             }
@@ -87,8 +95,7 @@ public class FileList extends AppCompatActivity {
                 currentItems = linearLayoutManager.getChildCount();
                 totalItems = linearLayoutManager.getItemCount();
                 scrolledOutItems = linearLayoutManager.findFirstVisibleItemPosition();
-                if (isScrolling && (currentItems+scrolledOutItems == totalItems))
-                {
+                if (isScrolling && (currentItems + scrolledOutItems == totalItems)) {
                     //Data Fetch
                     isScrolling = false;
                     fetchData();
@@ -101,49 +108,52 @@ public class FileList extends AppCompatActivity {
         loadData();
     }
 
-    private void loadData()
-    {
+    private void loadData() {
         appViewModel.loadFiles(username, repoName, getApplicationContext());
-        Log.i("wtferror", username+":"+repoName);
-        if (appViewModel.getFiles() != null)
-        {
+        Log.i("wtferror", username + ":" + repoName);
+        if (appViewModel.getFiles() != null) {
             appViewModel.getFiles(repoName).observe(this, new Observer<List<File>>() {
                 @Override
                 public void onChanged(@Nullable List<File> files) {
-                    if (files != null && !files.isEmpty())
-                    {
+                    if (files != null && !files.isEmpty()) {
                         recyclerView.setVisibility(View.VISIBLE);
                         imageView.setVisibility(View.GONE);
                         noDataTitle.setVisibility(View.GONE);
                         noDataDescription.setVisibility(View.GONE);
                         filesRecyclerAdapter.setFiles(files);
-                    }
-                    else
-                    {
+                        progressDialog.dismiss();
+                    } else {
                         recyclerView.setVisibility(View.GONE);
                         imageView.setVisibility(View.VISIBLE);
                         noDataTitle.setVisibility(View.VISIBLE);
                         noDataDescription.setVisibility(View.VISIBLE);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        },2000);
                         isNetIssue();
                     }
                 }
             });
-        }
-        else
-        {
+        } else {
             recyclerView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             noDataTitle.setVisibility(View.VISIBLE);
             noDataDescription.setVisibility(View.VISIBLE);
-
-                isNetIssue();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.dismiss();
+                }
+            },2000);
+            isNetIssue();
         }
     }
 
-    private void isNetIssue()
-    {
-        if (!internetCheck.netCheck())
-        {
+    private void isNetIssue() {
+        if (!internetCheck.netCheck()) {
             Snackbar snackbar = Snackbar
                     .make(findViewById(android.R.id.content), "No internet connection!", Snackbar.LENGTH_LONG)
                     .setAction("Retry", new View.OnClickListener() {
@@ -157,12 +167,11 @@ public class FileList extends AppCompatActivity {
                 @Override
                 public void run() {
 
-                        isNetIssue();
+                    isNetIssue();
 
-                }}, 5000);
-        }
-        else
-        {
+                }
+            }, 5000);
+        } else {
             loadData();
         }
     }
@@ -174,7 +183,7 @@ public class FileList extends AppCompatActivity {
             public void run() {
                 progressBar.setVisibility(View.GONE);
             }
-        },2000);
+        }, 2000);
     }
 
     @Override
@@ -186,9 +195,8 @@ public class FileList extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if(itemId == R.id.logout)
-        {
-            SharedPreferences sharedPref = this.getSharedPreferences("MY_PREFS",Context.MODE_PRIVATE);
+        if (itemId == R.id.logout) {
+            SharedPreferences sharedPref = this.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.clear();
             editor.apply();

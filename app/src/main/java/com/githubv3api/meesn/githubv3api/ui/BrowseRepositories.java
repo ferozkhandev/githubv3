@@ -1,10 +1,12 @@
 package com.githubv3api.meesn.githubv3api.ui;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +18,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -59,6 +64,7 @@ public class BrowseRepositories extends Fragment {
     private TextView noDataTitle, noDataDescription;
     private boolean isLoaded=false;
     private int i = 0;
+    private ProgressDialog progressDialog;
 
     private OnFragmentInteractionListener mListener;
 
@@ -70,6 +76,7 @@ public class BrowseRepositories extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -77,6 +84,13 @@ public class BrowseRepositories extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_my_repositories, container, false);
+
+        progressDialog = new ProgressDialog(rootView.getContext(),
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Data...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         // Inflate the layout for this fragment
         linearLayoutManager = new LinearLayoutManager(getContext());
@@ -164,6 +178,38 @@ public class BrowseRepositories extends Fragment {
         this.username = username;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.actionbarmenu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.logout) {
+            AppViewModel appViewModel;
+            appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
+            appViewModel.deleteRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
+            deleteSP();
+            modeInstanceBack();
+            Log.d("","");
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private synchronized void deleteSP() {
+        SharedPreferences sharedPref = getContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    private synchronized void modeInstanceBack() {
+        Intent intent = new Intent(getContext(), Login.class);
+        startActivity(intent);
+        getActivity().finish();
+    }
+
     private synchronized void loadData(final View rootView) {
         if (loadedUsers != null && !loadedUsers.isEmpty()) {
             username = loadedUsers.get(i).getLogin();
@@ -183,10 +229,17 @@ public class BrowseRepositories extends Fragment {
                         recyclerView.setVisibility(View.VISIBLE);
                         imageView.setVisibility(View.GONE);
                         otherRecyclerAdapter.setUsers(repositories);
+                        progressDialog.dismiss();
                     } else {
                         recyclerView.setVisibility(View.GONE);
                         imageView.setVisibility(View.VISIBLE);
                         Log.d("DataloadedCheck", "null");
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        },2000);
                         isNetIssue(rootView);
                     }
                 }
@@ -195,6 +248,12 @@ public class BrowseRepositories extends Fragment {
             recyclerView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             Log.d("DataloadedCheck", "failed");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.dismiss();
+                }
+            },2000);
             isNetIssue(rootView);
         }
     }

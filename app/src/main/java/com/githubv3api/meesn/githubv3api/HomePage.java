@@ -64,7 +64,7 @@ public class HomePage extends AppCompatActivity {
         manager.beginTransaction().replace(R.id.fragment_frames, myRepositories, myRepositories.getTag()).commit();
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbarmenu, menu);
         return true;
@@ -95,6 +95,6 @@ public class HomePage extends AppCompatActivity {
         Intent intent = new Intent(HomePage.this, Login.class);
         startActivity(intent);
         HomePage.this.finish();
-    }
+    }*/
 
 }

@@ -1,8 +1,10 @@
 package com.githubv3api.meesn.githubv3api.ui;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -25,6 +30,7 @@ import android.widget.TextView;
 import com.githubv3api.meesn.githubv3api.Adapter.UserRecyclerAdapter;
 import com.githubv3api.meesn.githubv3api.HomePage;
 import com.githubv3api.meesn.githubv3api.InternetCheck;
+import com.githubv3api.meesn.githubv3api.Login;
 import com.githubv3api.meesn.githubv3api.R;
 import com.githubv3api.meesn.githubv3api.database.Repository;
 import com.githubv3api.meesn.githubv3api.viewmodel.AppViewModel;
@@ -48,6 +54,7 @@ public class MyRepositories extends Fragment {
     final UserRecyclerAdapter userRecyclerAdapter = new UserRecyclerAdapter();
     private InternetCheck internetCheck;
     private TextView noDataTitle, noDataDescription;
+    private ProgressDialog progressDialog;
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,6 +74,13 @@ public class MyRepositories extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_my_repositories, container, false);
+
+        progressDialog = new ProgressDialog(rootView.getContext(),
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Data...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         // Inflate the layout for this fragment
         linearLayoutManager = new LinearLayoutManager(getContext());
@@ -136,6 +150,7 @@ public class MyRepositories extends Fragment {
                         noDataTitle.setVisibility(View.GONE);
                         noDataDescription.setVisibility(View.GONE);
                         userRecyclerAdapter.setUsers(repositories);
+                        progressDialog.dismiss();
                     }
                     else
                     {
@@ -145,6 +160,12 @@ public class MyRepositories extends Fragment {
                         noDataDescription.setVisibility(View.VISIBLE);
                         Log.d("DataloadedCheck", "null");
                         isNetIssue(rootView);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        },2000);
                     }
                 }
             });
@@ -156,6 +177,12 @@ public class MyRepositories extends Fragment {
             noDataTitle.setVisibility(View.VISIBLE);
             noDataDescription.setVisibility(View.VISIBLE);
             Log.d("DataloadedCheck", "failed");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.dismiss();
+                }
+            },2000);
             isNetIssue(rootView);
         }
     }
@@ -224,4 +251,5 @@ public class MyRepositories extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
 }

@@ -4,10 +4,5 @@
     <item android:id="@+id/search"
         android:title="Search"
         app:showAsAction="always|collapseActionView"
-        android:icon="@drawable/ic_search_white_24dp"
         app:actionViewClass="android.widget.SearchView" />
-    <item
-        android:id="@+id/logout"
-        android:title="Logout"
-        app:showAsAction="never" />
 </menu>
