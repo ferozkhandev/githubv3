@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -178,38 +180,6 @@ public class BrowseRepositories extends Fragment {
         this.username = username;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.actionbarmenu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.logout) {
-            AppViewModel appViewModel;
-            appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
-            appViewModel.deleteRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
-            deleteSP();
-            modeInstanceBack();
-            Log.d("","");
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    private synchronized void deleteSP() {
-        SharedPreferences sharedPref = getContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.apply();
-    }
-
-    private synchronized void modeInstanceBack() {
-        Intent intent = new Intent(getContext(), Login.class);
-        startActivity(intent);
-        getActivity().finish();
-    }
-
     private synchronized void loadData(final View rootView) {
         if (loadedUsers != null && !loadedUsers.isEmpty()) {
             username = loadedUsers.get(i).getLogin();
@@ -322,5 +292,57 @@ public class BrowseRepositories extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.actionbarmenu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                otherRecyclerAdapter.getFilter().filter(s);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.logout) {
+            AppViewModel appViewModel;
+            appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
+            appViewModel.deleteRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
+            deleteSP();
+            modeInstanceBack();
+            Log.d("","");
+        }
+        else if (itemId == R.id.search)
+        {
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private synchronized void deleteSP() {
+        SharedPreferences sharedPref = getContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    private synchronized void modeInstanceBack() {
+        Intent intent = new Intent(getContext(), Login.class);
+        startActivity(intent);
+        getActivity().finish();
     }
 }

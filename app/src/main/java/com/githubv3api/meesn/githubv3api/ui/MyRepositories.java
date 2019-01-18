@@ -66,7 +66,7 @@ public class MyRepositories extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -250,6 +250,41 @@ public class MyRepositories extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.removeItem(R.id.search);
+        inflater.inflate(R.menu.actionbarmenu, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        searchItem.setVisible(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.logout) {
+            AppViewModel appViewModel;
+            appViewModel = ViewModelProviders.of(this).get(AppViewModel.class);
+            appViewModel.deleteRepositories(getActivity().getIntent().getExtras().getString("userLoginName"));
+            deleteSP();
+            modeInstanceBack();
+            Log.d("","");
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private synchronized void deleteSP() {
+        SharedPreferences sharedPref = getContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    private synchronized void modeInstanceBack() {
+        Intent intent = new Intent(getContext(), Login.class);
+        startActivity(intent);
+        getActivity().finish();
     }
 
 }

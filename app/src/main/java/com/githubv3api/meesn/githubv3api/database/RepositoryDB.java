@@ -8,7 +8,7 @@ import android.content.Context;
 import com.githubv3api.meesn.githubv3api.model.File;
 import com.githubv3api.meesn.githubv3api.model.OtherUsers;
 
-@Database(entities = {Repository.class, File.class, OtherUsers.class}, version = 1)
+@Database(entities = {Repository.class, File.class, OtherUsers.class}, version = 1, exportSchema = false)
 public abstract class RepositoryDB extends RoomDatabase {
 
     private static RepositoryDB instance;
