@@ -119,14 +119,9 @@ public class Login extends AppCompatActivity {
                 new Runnable() {
                     public void run() {
                         loginSuccess = appViewModel.getLoginStatus();
-                        userLoginName = appViewModel.getUserLoginName();
                         // On complete call either onLoginSuccess or onLoginFailed
                         if (loginStatus()) {
-                            writesp(userLoginName);
                             onLoginSuccess();
-                            Intent intent = new Intent(Login.this, HomePage.class);
-                            intent.putExtra("userLoginName", userLoginName);
-                            startActivity(intent);
 
                         } else {
                             onLoginFailed();

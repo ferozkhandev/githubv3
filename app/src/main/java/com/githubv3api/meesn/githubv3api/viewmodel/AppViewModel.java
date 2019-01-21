@@ -45,6 +45,14 @@ public class AppViewModel extends AndroidViewModel {
         repositories = appRepository.getRepositories(repoType);
         return repositories;
     }
+    public void forkRepository(String user, String repo, Context context)
+    {
+        appRepository.forkRepository(user, repo, context);
+    }
+    public boolean getForked()
+    {
+        return appRepository.getForked();
+    }
 
     public void deleteRepositories(Repository repository)
     {

@@ -54,7 +54,7 @@ public class AppRepository {
     private boolean loginSuccess = false;
     private String userLoginName;
 
-    public boolean checkLoaded;
+    public boolean isForked = false;
 
     public static AppRepository getInstance(Context context) {
         ourInstance = new AppRepository(context);
@@ -207,6 +207,41 @@ public class AppRepository {
 
     /*-------------------------------------Files Info--------------------------------------------------*/
 
+    /*-------------------------------------Fork Repository--------------------------------------------------*/
+    public synchronized void forkRepository(String user, String repo, Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        String authHeader = sharedPref.getString("Authorization", null);
+        UserClient client = retrofit.create(UserClient.class);
+        Call<User> call = client.forkRepository(authHeader, user, repo);
+        Log.d("CheckUserName", user);
+
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.code() == 202) {
+                    isForked = true;
+                }
+                else
+                {
+                    Log.d("Error", response.errorBody().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("Error", "error :(");
+                //Toast.makeText(FileList.this, "error :(", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public synchronized boolean getForked() {
+        return isForked;
+    }
+
+
+    /*-------------------------------------Fork Repository--------------------------------------------------*/
+
     /*-------------------------------------Load OtherUsers Info--------------------------------------------------*/
     public void loadUsers(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
@@ -295,10 +330,25 @@ public class AppRepository {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
                 loginSuccess = true;
+                writesp(userLoginName);
+                Intent intent = new Intent(context, HomePage.class);
+                intent.putExtra("userLoginName", userLoginName);
+                context.startActivity(intent);
                 Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, "Incorrect Username or Password", Toast.LENGTH_SHORT).show();
             }
+        }
+        private void writesp(String userLoginName) {
+
+            SharedPreferences sharedPref = context.getSharedPreferences("MY_PREFS",Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            String base = username + ":" + password;
+            String authHeader = "Basic " + Base64.encodeToString(base.getBytes(), Base64.NO_WRAP);
+            editor.putBoolean("alreadylogin", true);
+            editor.putString("userloginname", userLoginName);
+            editor.putString("Authorization", authHeader);
+            editor.apply();
         }
     }
     /*-------------------------------------User Info--------------------------------------------------*/

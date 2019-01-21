@@ -12,6 +12,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface UserClient {
@@ -23,4 +24,7 @@ public interface UserClient {
     Call<List<Repository>> reposForUser(@Header("Authorization") String encodedid, @Path("user") String user);
     @GET("/repos/{user}/{repo}/contents")
     Call<List<File>> filesOfRepo(@Header("Authorization") String encodedid, @Path("user") String user, @Path("repo") String repo);
+    @POST("repos/{user}/{repo}/forks")
+    Call<User> forkRepository(@Header("Authorization") String encodedid, @Path("user") String user, @Path("repo") String repo);
+
 }

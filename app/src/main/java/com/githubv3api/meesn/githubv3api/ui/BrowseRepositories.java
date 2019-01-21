@@ -59,7 +59,7 @@ public class BrowseRepositories extends Fragment {
     private ImageView imageView;
     private AppViewModel appViewModel;
     private Executor executor = Executors.newSingleThreadExecutor();
-    final OtherRecyclerAdapter otherRecyclerAdapter = new OtherRecyclerAdapter();
+    final OtherRecyclerAdapter otherRecyclerAdapter = new OtherRecyclerAdapter(BrowseRepositories.this);
     private List<OtherUsers> loadedUsers;
     private String username;
     private InternetCheck internetCheck;
